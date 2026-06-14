@@ -14,6 +14,16 @@ hueman.nearest("#3a7d44") // NamedColor(name = "Jungle", hex = "#347c48")
 
 Built it once and reuse it — it's immutable and thread-safe.
 
+Ergonomic forms:
+
+```kotlin
+hueman["#facfea"]                 // operator get → "Classic Rose"
+colorName("#facfea")              // one-shot, lazy default instance
+RGB("#facfea").closestName()      // colormath Color extension
+
+val brand = Hueman.of("Brand Red" to "#e23", "Brand Ink" to "#123")
+```
+
 ## Install
 
 ```kotlin
@@ -27,8 +37,7 @@ Its only dependency is [colormath](https://github.com/ajalt/colormath) (also Kot
 
 ## Targets
 
-JVM · iOS (x64/arm64/simulator) · macOS (arm64) · JS · Wasm/JS. (Android can be added via the
-`android.kmp.library` plugin.)
+JVM · Android · iOS (x64/arm64/simulator) · macOS (arm64) · JS · Wasm/JS.
 
 ## Custom palette
 

@@ -32,6 +32,12 @@ public class Hueman private constructor(private val tree: LabKdTree) {
     /** The name of the color closest to [hex]. */
     public fun name(hex: String): String = nearest(hex).name
 
+    /** `hueman["#facfea"]` → the closest color name. */
+    public operator fun get(hex: String): String = name(hex)
+
+    /** `hueman[color]` → the closest color name. */
+    public operator fun get(color: Color): String = name(color)
+
     public companion object {
         /** Backed by the bundled meodai/color-names palette (~32k names, MIT — see NOTICE). The palette
          *  ships with CIELAB precomputed, so this just parses + builds the tree (no color conversions). */
@@ -40,6 +46,10 @@ public class Hueman private constructor(private val tree: LabKdTree) {
         /** Backed by a custom palette of name → hex. */
         public fun of(palette: Map<String, String>): Hueman =
             of(palette.map { (name, hex) -> NamedColor(name, hex) })
+
+        /** Backed by a custom palette: `Hueman.of("Brand Red" to "#e23", "Brand Ink" to "#123")`. */
+        public fun of(vararg colors: Pair<String, String>): Hueman =
+            of(colors.map { (name, hex) -> NamedColor(name, hex) })
 
         /** Backed by a custom [palette] (each hex is converted to CIELAB here). */
         public fun of(palette: List<NamedColor>): Hueman {
@@ -52,6 +62,18 @@ public class Hueman private constructor(private val tree: LabKdTree) {
         }
     }
 }
+
+/** Shared default instance for the top-level conveniences, built on first use. */
+private val defaultHueman: Hueman by lazy { Hueman.default() }
+
+/** One-shot lookup against the bundled palette: `colorName("#facfea") // "Classic Rose"`. */
+public fun colorName(hex: String): String = defaultHueman.name(hex)
+
+/** One-shot lookup against the bundled palette. */
+public fun colorName(color: Color): String = defaultHueman.name(color)
+
+/** The closest bundled-palette name for this colormath [Color]: `RGB("#facfea").closestName()`. */
+public fun Color.closestName(): String = defaultHueman.name(this)
 
 internal fun withHash(hex: String): String = if (hex.startsWith("#")) hex else "#$hex"
 
