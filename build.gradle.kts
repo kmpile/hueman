@@ -48,18 +48,23 @@ val generateColorData by tasks.registering {
         val parts = ArrayList<String>()
         val cur = StringBuilder()
         fun flush() { if (cur.isNotEmpty()) { parts.add(esc(cur.toString())); cur.clear() } }
+        fun centi(v: Float) = Math.round((v * 100f).toDouble()).toInt()  // LAB → integer hundredths (compact, locale-safe)
         var count = 0
         csv.asFile.useLines { lines ->
             lines.drop(1).forEach { line ->
                 if (line.isBlank()) return@forEach
                 val m = hexRe.find(line) ?: return@forEach
+                // meodai marks curated, non-weird names with "x" in the trailing "good name" column;
+                // ship only those — far smaller and nicer labels for a picker.
+                val good = line.substring(m.range.last + 1).trim(',', ' ', '"')
+                if (good != "x") return@forEach
                 val name = line.substring(0, m.range.first).trimEnd(',', ' ', '"').trim('"')
                 if (name.isEmpty()) return@forEach
                 val hex = m.value
                 val lab = com.github.ajalt.colormath.model.RGB(hex).toLAB()
-                // record = name | hex | L | a | b  (fields joined by U+0001), LAB precomputed.
+                // record = name | hex | L*100 | a*100 | b*100  (fields joined by U+0001), LAB precomputed.
                 cur.append(name).append(unit).append(hex).append(unit)
-                    .append(lab.l).append(unit).append(lab.a).append(unit).append(lab.b).append(rs)
+                    .append(centi(lab.l)).append(unit).append(centi(lab.a)).append(unit).append(centi(lab.b)).append(rs)
                 count++
                 if (cur.length > 40_000) flush()  // raw cap → escaped stays under the 64 KB limit
             }
@@ -71,7 +76,7 @@ val generateColorData by tasks.registering {
             appendLine("package com.kmpile.hueman")
             appendLine()
             appendLine("// GENERATED from data/colornames.csv (meodai/color-names, MIT — see NOTICE). Do not edit.")
-            appendLine("// $count colors; record = name|hex|L|a|b (fields joined by U+0001, records by U+0002).")
+            appendLine("// $count curated colors; record = name|hex|L*100|a*100|b*100 (fields joined by U+0001, records by U+0002).")
             appendLine("internal val colorData: String = buildString {")
             parts.indices.forEach { appendLine("    append(P$it)") }
             appendLine("}")

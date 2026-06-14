@@ -78,8 +78,9 @@ public fun Color.closestName(): String = defaultHueman.name(this)
 internal fun withHash(hex: String): String = if (hex.startsWith("#")) hex else "#$hex"
 
 /**
- * Decode the generated [colorData] into palette points. Each record is `name | hex | L | a | b`
- * (fields joined by U+0001), records joined by U+0002 — LAB precomputed at build time.
+ * Decode the generated [colorData] into palette points. Each record is `name | hex | L*100 | a*100 |
+ * b*100` (fields joined by U+0001), records joined by U+0002 — LAB precomputed at build time as integer
+ * hundredths.
  */
 private fun parseBundledPalette(): List<LabPoint> {
     val unit = 1.toChar()
@@ -88,6 +89,6 @@ private fun parseBundledPalette(): List<LabPoint> {
         if (record.isEmpty()) return@mapNotNull null
         val f = record.split(unit)
         if (f.size < 5) return@mapNotNull null
-        LabPoint(f[2].toFloat(), f[3].toFloat(), f[4].toFloat(), NamedColor(f[0], f[1]))
+        LabPoint(f[2].toInt() / 100f, f[3].toInt() / 100f, f[4].toInt() / 100f, NamedColor(f[0], f[1]))
     }
 }

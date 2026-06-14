@@ -8,20 +8,33 @@ class HuemanTest {
     private val hueman = Hueman.default()
 
     @Test
-    fun namesTheCanonicalExample() {
-        assertEquals("Classic Rose", hueman.name("#facfea"))
+    fun namesAnExactPaletteColor() {
+        // A color present in the palette is its own nearest (LAB distance 0).
+        assertEquals("Red", hueman.name("#ff0000"))
+        assertEquals("Mint", hueman.name("#3eb489"))
+        assertEquals("Lavender", hueman.name("#b56edc"))
     }
 
     @Test
     fun acceptsHexWithoutHash() {
-        assertEquals(hueman.name("#ff0000"), hueman.name("ff0000"))
+        assertEquals(hueman.name("#b56edc"), hueman.name("b56edc"))
     }
 
     @Test
-    fun exactPaletteColorReturnsItself() {
-        val brand = Hueman.of(mapOf("Brand Red" to "#ee3333", "Brand Ink" to "#112233"))
+    fun operatorGetMatchesName() {
+        assertEquals(hueman.name("#ff0000"), hueman["#ff0000"])
+    }
+
+    @Test
+    fun topLevelConvenienceUsesDefault() {
+        assertEquals("Red", colorName("#ff0000"))
+    }
+
+    @Test
+    fun customPaletteExactMatch() {
+        val brand = Hueman.of("Brand Red" to "#ee3333", "Brand Ink" to "#112233")
         assertEquals("Brand Red", brand.name("#ee3333"))
-        assertEquals("Brand Ink", brand.name("112233"))
+        assertEquals("Brand Ink", brand["112233"])
     }
 
     @Test
