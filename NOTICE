@@ -1,0 +1,7 @@
+hueman bundles the color-name dataset from:
+
+  color-names — https://github.com/meodai/color-names
+  Copyright (c) 2017 David Aerne — MIT License
+
+The dataset (data/colornames.csv) is redistributed under its MIT license.
+The hueman library itself is also MIT licensed (see LICENSE).
